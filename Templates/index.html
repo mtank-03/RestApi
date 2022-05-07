@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Product Filters Price Range Using Python Flask Mysql and Jquery Ajax</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <br />
+            <h2 align="center">REST API for a product listing </h2>
+            <br />
+            <div class="col-md-3">
+                <h3 style="font-style: italic;">Search filter:</h3>
+                <div class="list-group">
+                    <h4>Category</h4>
+                    <select name="search_filter" id="search_filter" class="form-control">
+                    <option value="">Select Option</option>';
+                    {% for row in product %}
+                        <option value="{{row.product_type}}">{{row.product_type}}</option>';    
+                    {% endfor %}
+                    </select>
+                    <input type="hidden" name="hidden_value" id="hidden_value" />
+                    <div style="clear:both"></div>
+                </div>
+
+                <br />
+                <div class="list-group">
+                    <h4>Color</h4>
+                    <select name="search_filters" id="search_filters" class="form-control">
+                    <option value="">Select Option</option>';
+                    {% for row in color %}
+                        <option value="{{row.color}}">{{row.color}}</option>';    
+                    {% endfor %}
+                    </select>
+                    <input type="hidden" name="hidden_value" id="hidden_value" />
+                    <div style="clear:both"></div>
+                </div>
+
+                <br />
+                <div class="list-group">
+                    <h4>Price</h4>
+                    <input type="hidden" id="hidden_minimum_price" value="0" />
+                    <input type="hidden" id="hidden_maximum_price" value="65000" />
+                    <p id="price_show">10 - 5000</p>
+                    <div id="price_range"></div>
+                </div>
+
+                <br />
+
+                <div class="list-group">
+                    <h4>Sort By</h4>
+                    <select name="search_filtersort" id="search_filtersort" class="form-control">
+                    <option value="">Select Option</option>';
+                    <option value="Price">Price</option>';
+                    <option value="Newest">Newest</option>';
+                    </select>
+                    <input type="hidden" name="hidden_value" id="hidden_value" />
+                    <div style="clear:both"></div>
+                </div>
+
+
+            </div>
+            <div class="col-md-9">
+                <div class="row filter_data">
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        #loading {
+            text-align: center;
+            background: url('images/loading.gif') no-repeat center;
+            height: 150px;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            filter_data();
+
+            function filter_data() {
+                $('.filter_data').html('<div id="loading" style="" ></div>');
+                var action = 'fetch_data';
+                var minimum_price = $('#hidden_minimum_price').val();
+                var maximum_price = $('#hidden_maximum_price').val();
+                $.ajax({
+                    url: "/fetchrecords",
+                    method: "POST",
+                    data: {
+                        action: action,
+                        minimum_price: minimum_price,
+                        maximum_price: maximum_price
+                    },
+                    success: function(data) {
+                        $('.filter_data').html(data);
+                        $(".filter_data").append(data.htmlresponse);
+                    }
+                });
+            }
+            $('#price_range').slider({
+                range: true,
+                min: 50,
+                max: 5000,
+                values: [50, 5000],
+                step: 50,
+                stop: function(event, ui) {
+                    $('#price_show').html(ui.values[0] + ' - ' + ui.values[1]);
+                    $('#hidden_minimum_price').val(ui.values[0]);
+                    $('#hidden_maximum_price').val(ui.values[1]);
+                    filter_data();
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $('.filter_data').html('<div id="loading" style="" ></div>');
+            load_data();
+
+            function load_data(query = '') {
+                $.ajax({
+                    url: "/fetchrecord",
+                    method: "POST",
+                    data: {
+                        query: query
+                    },
+                    success: function(data) {
+                        $('.filter_data').html(data);
+                        $('.filter_data').append(data.htmlcategory);
+                    }
+                })
+            }
+
+            $('#search_filter').change(function() {
+                $('#hidden_value').val($('#search_filter').val());
+                var query = $('#hidden_value').val();
+                load_data(query);
+            });
+
+        });
+
+        $(document).ready(function() {
+            $('.filter_data').html('<div id="loading" style="" ></div>');
+            load_data();
+
+            function load_data(query = '') {
+                $.ajax({
+                    url: "/fetchcolor",
+                    method: "POST",
+                    data: {
+                        query: query
+                    },
+                    success: function(data) {
+                        $('.filter_data').html(data);
+                        $('.filter_data').append(data.htmlcolor);
+                    }
+                })
+            }
+
+            $('#search_filters').change(function() {
+                $('#hidden_value').val($('#search_filters').val());
+                var query = $('#hidden_value').val();
+                load_data(query);
+            });
+
+        });
+        $(document).ready(function() {
+            $('.filter_data').html('<div id="loading" style="" ></div>');
+            load_data();
+
+            function load_data(query = '') {
+                $.ajax({
+                    url: "/fetchcolor",
+                    method: "POST",
+                    data: {
+                        query: query
+                    },
+                    success: function(data) {
+                        $('.filter_data').html(data);
+                        $('.filter_data').append(data.htmlcolor);
+                    }
+                })
+            }
+
+            $('#search_filters').change(function() {
+                $('#hidden_value').val($('#search_filters').val());
+                var query = $('#hidden_value').val();
+                load_data(query);
+            });
+
+        });
+
+
+        $(document).ready(function() {
+            $('.filter_data').html('<div id="loading" style="" ></div>');
+            load_data();
+
+            function load_data(query = '') {
+                $.ajax({
+                    url: "/fetchsort",
+                    method: "POST",
+                    data: {
+                        query: query
+                    },
+                    success: function(data) {
+                        $('.filter_data').html(data);
+                        $('.filter_data').append(data.htmlsort);
+                    }
+                })
+            }
+
+            $('#search_filtersort').change(function() {
+                $('#hidden_value').val($('#search_filtersort').val());
+                var query = $('#hidden_value').val();
+                load_data(query);
+            });
+
+        });
+    </script>
+</body>
+
+</html>
